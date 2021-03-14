@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      nav {
+        background: #0d6efd;
+        padding: none;
+      }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+      #theme-mode { font-size: 8vw; padding: 1vw; cursor: pointer; }
+      #theme-mode::selection { background: none }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+    </style>
+    <title>Chat Program</title>
+  </head>
+  <body>
+    <nav id="nav">
+        <div class="container">
+          <div class="row align-items-start">
+              <div class="col">
+                <h1 align-items-center><span>Chat Program</span></h1>
+              </div>
+              <div class="col">
+                <span id="theme-mode" class="material-icons d-flex justify-content-end align-items-start">light_mode</span>
+              </div>
+          </div>
+        </div>  
+    </nav>
+
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button class="btn btn-primary">Send</button>
+    </form>
+  </body>
+</html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  const messages = document.getElementById('messages');
+  const form = document.getElementById('form');
+  const input = document.getElementById('input');
+
+  const theme = document.getElementById('theme-mode');
+
+  socket.on('connect', () => {
+    //const username = prompt('Please input your username here');
+
+    const username = "A User";
+
+    socket.emit('register', username);
+  });
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    if (input.value) {
+      socket.emit('chat message', input.value);
+      input.value = '';
+    }
+  });
+
+  socket.on('chat message', function(msg) {
+    var item = document.createElement('li');
+    item.textContent = msg;
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+  });
+
+  theme.addEventListener('click', () => {
+    if (theme.innerText === "light_mode") {
+      theme.innerText = "dark_mode";
+      document.querySelector('body').style.backgroundColor = 'gray';
+      document.querySelector('li').style.backgroundColor = 'gray';
+    } else if (theme.innerText === "dark_mode") {
+      theme.innerText = "light_mode";
+      document.querySelector('body').style.backgroundColor = 'white';
+      document.querySelector('li').style.backgroundColor = 'white';
+    }
+  })
+</script> 
+
+<style>
+nav {
+        background: #0d6efd;
+        padding: none;
+      }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+      #theme-mode { font-size: 8vw; padding: 1vw; cursor: pointer; }
+      #theme-mode::selection { background: none }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+</style>
